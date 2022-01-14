@@ -1,9 +1,6 @@
 import { createMacro, MacroError } from 'babel-plugin-macros'
 import { processTaggedTemplateExpression } from './babel-external'
-import {
-  setStateOptions,
-  createReactComponentImportDeclaration
-} from './_utils'
+import { setStateOptions } from './_utils'
 import { STYLE_COMPONENT } from './_constants'
 
 export default createMacro(styledJsxMacro)
@@ -88,8 +85,6 @@ function styledJsxMacro({ references, state }) {
         state.styleComponentImportName = programPath.scope.generateUidIdentifier(
           STYLE_COMPONENT
         ).name
-        const importDeclaration = createReactComponentImportDeclaration(state)
-        programPath.unshiftContainer('body', importDeclaration)
       }
 
       // Finally transform the path :)

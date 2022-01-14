@@ -7,7 +7,6 @@ import {
   validateExternalExpressions,
   getScope,
   computeClassNames,
-  makeStyledJsxTag,
   setStateOptions
 } from './_utils'
 
@@ -37,7 +36,7 @@ export function processTaggedTemplateExpression({
 
   const stylesInfo = getJSXStyleInfo(templateLiteral, scope)
 
-  const { staticClassName, className } = computeClassNames(
+  const { staticClassName } = computeClassNames(
     [stylesInfo],
     undefined,
     styleComponentImportName
@@ -57,20 +56,9 @@ export function processTaggedTemplateExpression({
   )
 
   if (type === 'resolve') {
-    const { hash, css, expressions } = styles
-    path.replaceWith(
-      // {
-      //   styles: <_JSXStyle ... />,
-      //   className: 'jsx-123'
-      // }
-      t.objectExpression([
-        t.objectProperty(
-          t.identifier('styles'),
-          makeStyledJsxTag(hash, css, expressions, styleComponentImportName)
-        ),
-        t.objectProperty(t.identifier('className'), className)
-      ])
-    )
+    const { css } = styles
+    const transformedCss = cssToBabelType(css)
+    templateLiteral.replaceWith(transformedCss)
     return
   }
 
@@ -91,9 +79,7 @@ export function processTaggedTemplateExpression({
   }
 
   const css = cssToBabelType(styles.css)
-  const newPath = t.isArrayExpression(css)
-    ? css
-    : t.newExpression(t.identifier('String'), [css])
+  const newPath = css
 
   // default exports
 
@@ -107,26 +93,13 @@ export function processTaggedTemplateExpression({
       ])
     )
 
-    parentPath.insertBefore(addHash(defaultExportIdentifier, styles.hash))
     path.replaceWith(defaultExportIdentifier)
     return
   }
 
   // local and named exports
 
-  parentPath.insertAfter(addHash(t.identifier(baseExportName), styles.hash))
-  path.replaceWith(newPath)
-}
-
-function addHash(exportIdentifier, hash) {
-  const value = typeof hash === 'string' ? t.stringLiteral(hash) : hash
-  return t.expressionStatement(
-    t.assignmentExpression(
-      '=',
-      t.memberExpression(exportIdentifier, t.identifier('__hash')),
-      value
-    )
-  )
+  templateLiteral.replaceWith(newPath)
 }
 
 export const visitor = {
@@ -229,9 +202,6 @@ export const visitor = {
         state.file.hasCssResolve = true
       }
     })
-
-    // Finally remove the import
-    path.remove()
   }
 }
 

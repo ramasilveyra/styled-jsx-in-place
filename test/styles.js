@@ -143,7 +143,6 @@ test('splits rules for `optimizeForSpeed`', t => {
     }
   `,
     [
-      '@-webkit-keyframes test{0%{opacity:0;}100%{opacity:1;}}',
       '@keyframes test{0%{opacity:0;}100%{opacity:1;}}'
     ]
   )
@@ -155,7 +154,7 @@ test('splits rules for `optimizeForSpeed`', t => {
     }
   `,
     [
-      '@supports (display:-webkit-box) or (display:-webkit-flex) or (display:-ms-flexbox) or (display:flex){div{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;}}'
+      '@supports (display:flex){div{display:flex;}}'
     ]
   )
 
@@ -173,7 +172,7 @@ test('splits rules for `optimizeForSpeed`', t => {
     [
       '@import "./test.css";',
       '@import "./test.css";',
-      '@supports (display:-webkit-box) or (display:-webkit-flex) or (display:-ms-flexbox) or (display:flex){div{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;}}',
+      '@supports (display:flex){div{display:flex;}}',
       'div{color:red;}',
       'a,div{color:red;}',
       '@media (min-width:400px){div,span{color:red;}}'
@@ -207,8 +206,7 @@ test('splits rules for `optimizeForSpeed`', t => {
     }
   `,
     [
-      'div.jsx-123{-webkit-animation:fade-in-jsx-123 ease-in 1;animation:fade-in-jsx-123 ease-in 1;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards;-webkit-animation-duration:500ms;animation-duration:500ms;opacity:0;}',
-      '@-webkit-keyframes fade-in-jsx-123{from{opacity:0;}to{opacity:1;}}',
+      'div.jsx-123{animation:fade-in-jsx-123 ease-in 1;animation-fill-mode:forwards;animation-duration:500ms;opacity:0;}',
       '@keyframes fade-in-jsx-123{from{opacity:0;}to{opacity:1;}}'
     ],
     '.jsx-123'
@@ -234,8 +232,7 @@ test('splits rules for `optimizeForSpeed`', t => {
     }
   `,
     [
-      'div{-webkit-animation:fade-in ease-in 1;animation:fade-in ease-in 1;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards;-webkit-animation-duration:500ms;animation-duration:500ms;opacity:0;}',
-      '@-webkit-keyframes fade-in{from{opacity:0;}to{opacity:1;}}',
+      'div{animation:fade-in ease-in 1;animation-fill-mode:forwards;animation-duration:500ms;opacity:0;}',
       '@keyframes fade-in{from{opacity:0;}to{opacity:1;}}'
     ]
   )
@@ -244,9 +241,6 @@ test('splits rules for `optimizeForSpeed`', t => {
     `div { color: red } ::placeholder { color: green }`,
     [
       'div.jsx-123{color:red;}',
-      '.jsx-123::-webkit-input-placeholder{color:green;}',
-      '.jsx-123::-moz-placeholder{color:green;}',
-      '.jsx-123:-ms-input-placeholder{color:green;}',
       '.jsx-123::placeholder{color:green;}'
     ],
     '.jsx-123'

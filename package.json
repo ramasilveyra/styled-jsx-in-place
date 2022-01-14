@@ -1,6 +1,6 @@
 {
-  "name": "styled-jsx",
-  "version": "0.0.0-development",
+  "name": "styled-jsx-in-place",
+  "version": "1.0.0-beta.0",
   "license": "MIT",
   "repository": "vercel/styled-jsx",
   "description": "Full CSS support for JSX without compromises",
@@ -97,7 +97,7 @@
   "peerDependenciesMeta": {
     "@babel/core": {
       "optional": true
-     }
+    }
   },
   "engines": {
     "node": ">= 12.0.0"

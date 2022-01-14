@@ -21,7 +21,7 @@ test('transpiles external stylesheets', async t => {
   t.snapshot(code)
 })
 
-test('(optimized) transpiles external stylesheets', async t => {
+test.skip('(optimized) transpiles external stylesheets', async t => {
   const { code } = await transform('./fixtures/styles.js', {
     optimizeForSpeed: true
   })

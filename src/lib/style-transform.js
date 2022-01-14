@@ -101,7 +101,7 @@ function transform(hash, styles, settings = {}) {
     prefix:
       typeof settings.vendorPrefixes === 'boolean'
         ? settings.vendorPrefixes
-        : true
+        : false
   })
 
   stylis(hash, styles)
@@ -110,7 +110,7 @@ function transform(hash, styles, settings = {}) {
     return splitRules
   }
 
-  return splitRules.join('')
+  return styles
 }
 
 module.exports = transform

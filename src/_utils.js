@@ -18,7 +18,7 @@ const or = (a, b) => t.logicalExpression('||', a, b)
 
 const joinSpreads = spreads => spreads.reduce((acc, curr) => or(acc, curr))
 
-export const hashString = str => String(_hashString(str))
+export const hashString = str => String(_hashString(str || ''))
 
 export const addClassName = (path, jsxId) => {
   const jsxIdWithSpace = concat(jsxId, t.stringLiteral(' '))
@@ -375,7 +375,7 @@ export const templateLiteralFromPreprocessedCss = (css, expressions) => {
 
 export const cssToBabelType = css => {
   if (typeof css === 'string') {
-    return t.stringLiteral(css)
+    return t.templateLiteral([t.templateElement({ raw: css, cooked: css })], [])
   }
 
   if (Array.isArray(css)) {
@@ -385,35 +385,14 @@ export const cssToBabelType = css => {
   return t.cloneDeep(css)
 }
 
-export const makeStyledJsxTag = (
-  id,
-  transformedCss,
-  expressions = [],
-  styleComponentImportName
-) => {
+export const makeStyledJsxTag = (id, transformedCss) => {
   const css = cssToBabelType(transformedCss)
 
-  const attributes = [
-    t.jSXAttribute(
-      t.jSXIdentifier(STYLE_COMPONENT_ID),
-      t.jSXExpressionContainer(
-        typeof id === 'string' ? t.stringLiteral(id) : id
-      )
-    )
-  ]
-
-  if (expressions.length > 0) {
-    attributes.push(
-      t.jSXAttribute(
-        t.jSXIdentifier(STYLE_COMPONENT_DYNAMIC),
-        t.jSXExpressionContainer(t.arrayExpression(expressions))
-      )
-    )
-  }
+  const attributes = [t.jSXAttribute(t.jSXIdentifier(STYLE_COMPONENT_ID))]
 
   return t.jSXElement(
-    t.jSXOpeningElement(t.jSXIdentifier(styleComponentImportName), attributes),
-    t.jSXClosingElement(t.jSXIdentifier(styleComponentImportName)),
+    t.jSXOpeningElement(t.jSXIdentifier('style'), attributes),
+    t.jSXClosingElement(t.jSXIdentifier('style')),
     [t.jSXExpressionContainer(css)]
   )
 }
@@ -514,9 +493,6 @@ export const combinePlugins = plugins => {
   return combinedPluginsCache.combined
 }
 
-const getPrefix = (isDynamic, id) =>
-  isDynamic ? '.__jsx-style-dynamic-selector' : `.${id}`
-
 export const processCss = (stylesInfo, options) => {
   const {
     hash,
@@ -572,26 +548,21 @@ export const processCss = (stylesInfo, options) => {
     const filename = fileInfo.sourceFileName
 
     transformedCss = addSourceMaps(
-      transform(
-        isGlobal ? '' : getPrefix(dynamic, staticClassName),
-        plugins(css, pluginsOptions),
-        {
-          generator,
-          offset: location.start,
-          filename,
-          splitRules,
-          vendorPrefixes
-        }
-      ),
+      transform('', plugins(css, pluginsOptions), {
+        generator,
+        offset: location.start,
+        filename,
+        splitRules,
+        vendorPrefixes
+      }),
       generator,
       filename
     )
   } else {
-    transformedCss = transform(
-      isGlobal ? '' : getPrefix(dynamic, staticClassName),
-      plugins(css, pluginsOptions),
-      { splitRules, vendorPrefixes }
-    )
+    transformedCss = transform('', plugins(css, pluginsOptions), {
+      splitRules,
+      vendorPrefixes
+    })
   }
 
   if (expressions.length > 0) {
@@ -629,13 +600,6 @@ export const booleanOption = opts => {
     return false
   })
   return ret
-}
-
-export const createReactComponentImportDeclaration = state => {
-  return t.importDeclaration(
-    [t.importDefaultSpecifier(t.identifier(state.styleComponentImportName))],
-    t.stringLiteral(state.styleModule)
-  )
 }
 
 export const setStateOptions = state => {

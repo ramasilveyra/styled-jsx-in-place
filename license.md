@@ -1,6 +1,9 @@
 MIT License
 
-Copyright (c) 2016-present Vercel, Inc.
+Copyright (c) for portions of project styled-jsx-in-place are held by 
+Vercel, Inc., 2016-present as part of project styled-jsx. All other 
+copyright for project styled-jsx-in-place are held by 
+Ramiro Silveyra d'Avila, 2022-present.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

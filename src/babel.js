@@ -7,13 +7,11 @@ import {
   isGlobalEl,
   isStyledJsx,
   findStyles,
-  makeStyledJsxTag,
   getJSXStyleInfo,
-  computeClassNames,
+  cssToBabelType,
   addClassName,
   getScope,
   processCss,
-  createReactComponentImportDeclaration,
   setStateOptions
 } from './_utils'
 import { STYLE_COMPONENT } from './_constants'
@@ -155,27 +153,27 @@ export default function({ types: t }) {
           } else {
             // Construct a template literal of this form:
             // `jsx-${styles.__scopedHash} jsx-${otherStyles.__scopedHash}`
-            externalJsxId = t.templateLiteral(
-              [
-                t.templateElement({ raw: 'jsx-', cooked: 'jsx-' }),
-                ...[...new Array(expressionsLength - 1).fill(null)].map(() =>
-                  t.templateElement({ raw: ' jsx-', cooked: ' jsx-' })
-                ),
-                t.templateElement({ raw: '', cooked: '' }, true)
-              ],
-              expressions
-            )
+            // externalJsxId = t.templateLiteral(
+            //   [
+            //     t.templateElement({ raw: 'jsx-', cooked: 'jsx-' }),
+            //     ...[...new Array(expressionsLength - 1).fill(null)].map(() =>
+            //       t.templateElement({ raw: ' jsx-', cooked: ' jsx-' })
+            //     ),
+            //     t.templateElement({ raw: '', cooked: '' }, true)
+            //   ],
+            //   expressions
+            // )
           }
         }
 
         if (state.styles.length > 0 || externalJsxId) {
-          const { staticClassName, className } = computeClassNames(
-            state.styles,
-            externalJsxId,
-            state.styleComponentImportName
-          )
-          state.className = className
-          state.staticClassName = staticClassName
+          // const { staticClassName, className } = computeClassNames(
+          //   state.styles,
+          //   externalJsxId,
+          //   state.styleComponentImportName
+          // )
+          // state.className = className
+          // state.staticClassName = staticClassName
         }
 
         state.hasJSXStyle = true
@@ -222,11 +220,11 @@ export default function({ types: t }) {
             return expression && expression.isIdentifier()
           }).length === 1
         ) {
-          const [id, css] = state.externalStyles.shift()
+          // const [id, css] = state.externalStyles.shift()
 
-          path.replaceWith(
-            makeStyledJsxTag(id, css, [], state.styleComponentImportName)
-          )
+          // path.replaceWith(
+          //   makeStyledJsxTag(id, css, [], state.styleComponentImportName)
+          // )
           return
         }
 
@@ -245,18 +243,18 @@ export default function({ types: t }) {
             ? state.opts.optimizeForSpeed
             : process.env.NODE_ENV === 'production'
 
-        const { hash, css, expressions } = processCss(stylesInfo, {
+        const { css } = processCss(stylesInfo, {
           splitRules
         })
-
-        path.replaceWith(
-          makeStyledJsxTag(
-            hash,
-            css,
-            expressions,
-            state.styleComponentImportName
-          )
-        )
+        path.node.children = [t.jSXExpressionContainer(cssToBabelType(css))]
+        // path.replaceWith(
+        //   makeStyledJsxTag(
+        //     hash,
+        //     css,
+        //     expressions,
+        //     state.styleComponentImportName
+        //   )
+        // )
       }
     }
   }
@@ -312,8 +310,6 @@ export default function({ types: t }) {
             return
           }
           state.file.hasJSXStyle = true
-          const importDeclaration = createReactComponentImportDeclaration(state)
-          path.unshiftContainer('body', importDeclaration)
         }
       }
     }

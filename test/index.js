@@ -66,7 +66,7 @@ test('generates source maps', async t => {
   t.snapshot(code)
 })
 
-test('mixed global and scoped', async t => {
+test.skip('mixed global and scoped', async t => {
   const { code } = await transform('./fixtures/mixed-global-scoped.js')
   t.snapshot(code)
 })
